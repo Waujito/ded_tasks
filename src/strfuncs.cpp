@@ -190,36 +190,33 @@ char *my_strtok_r(char *str, const char *delim, char **saveptr) {
 	if (*saveptr == NULL)
 		return NULL;
 
-	char *substr_ptr = *saveptr;
-	int do_break = 0;
-	while (*substr_ptr != '\0') {
-		for (size_t d = 0; delim[d] != '\0'; d++) { // FIXME strchr
-			if (*substr_ptr == delim[d]) {
-				*substr_ptr = '\0';
-				do_break = 1;
+	char *token_beginning = *saveptr;
+	while (*token_beginning != '\0') {
+		const char *delim_found = strchr(delim, *token_beginning);
+		if (delim_found) {
+			*token_beginning = '\0';
 
-				if (*saveptr == substr_ptr) { // FIXME
-					(*saveptr)++;
-					do_break = 0;
-				}
-
+			if (*saveptr == token_beginning) {
+				(*saveptr)++;
+				token_beginning++;
+				continue;
+			} else {
+				token_beginning++;
 				break;
 			}
+
+		} else {
+			token_beginning++;
 		}
-
-		substr_ptr++;
-
-		if (do_break)
-			break;
 	}
 
 	char *old_saveptr = *saveptr;
 
-	if (*substr_ptr == '\0') {
-		substr_ptr = NULL;
+	if (*token_beginning == '\0') {
+		token_beginning = NULL;
 	}
 
-	*saveptr = substr_ptr;
+	*saveptr = token_beginning;
 
 	if (*old_saveptr == '\0')
 		return NULL;

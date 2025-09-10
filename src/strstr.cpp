@@ -1,8 +1,9 @@
 #include <assert.h>
+#include <string.h>
+#include <stdint.h>
 
 #include "strstr.h"
 #include "strfuncs.h"
-#include <string.h>
 
 char *my_strstr_trivial(char *haystack, const char *needle) {
 	assert (haystack);
@@ -24,25 +25,26 @@ char *my_strstr_trivial(char *haystack, const char *needle) {
 	return NULL;
 }
 
-static void z_function(const char *str, int *zbuf, size_t len) { // FIXME imena huinya. Peredelat'
-	zbuf[0] = (int) len;
+static void z_function(const char *str, int *zbuf, size_t str_len) {
+	zbuf[0] = (int) str_len;
 
-	int lh = 0, rh = 0;
-	for (int i = 1; i < (int) len; i++) {
+	int left_border = 0, right_border = 0;
+
+	for (int i = 1; i < (int) str_len; i++) {
 		zbuf[i] = 0;
-		if (i < rh) {
-			zbuf[i] = zbuf[i - lh];
-			if (rh - i < zbuf[i])
-				zbuf[i] = rh - i;
+		if (i < right_border) {
+			zbuf[i] = zbuf[i - left_border];
+			if (right_border - i < zbuf[i])
+				zbuf[i] = right_border - i;
 		}
 
-		while (	i + zbuf[i] < (int) len &&
+		while (	i + zbuf[i] < (int) str_len &&
 			str[zbuf[i]] == str[i + zbuf[i]])
 			zbuf[i]++;
 
-		if (i + zbuf[i] > rh) {
-			lh = i;
-			rh = i + zbuf[i];
+		if (i + zbuf[i] > right_border) {
+			left_border = i;
+			right_border = i + zbuf[i];
 		}
 	}
 }
@@ -88,31 +90,32 @@ char *my_strstr_zfunction(char *haystack, const char *needle) {
 	return NULL;
 }
 
-static const int HASH_MOD = 1'000'000'007;
+typedef int64_t hash_t;
+static const hash_t HASH_MOD = 1'000'000'007;
 
-static inline long long positive_mod(long long a, long long b) {
-    long long result = a % b;
+struct hash_st {
+	hash_t hash;
+	hash_t hash_slide;
+};
+
+static inline hash_t positive_mod(hash_t a, hash_t b) {
+    hash_t result = a % b;
     if (result < 0) {
         result += (b < 0) ? -b : b;
     }
     return result;
 }
 
-static const int ALPHABET_STRENGTH = 256;
-// TODO typedef for hash type
-struct hash_st {
-	long long hash;
-	long long hash_slide;
-};
+static const hash_t ALPHABET_STRENGTH = 256;
 
 static inline struct hash_st calc_hash(const char *str, size_t needle_len) {
 	assert(str);
 
-	long long hash = str[0];
-	long long hash_slide = 1;
+	hash_t hash = (hash_t) str[0];
+	hash_t hash_slide = 1;
 
 	for (size_t i = 1; i < needle_len; i++) {
-		hash = ((hash * ALPHABET_STRENGTH) % HASH_MOD + str[i]) % HASH_MOD;
+		hash = ((hash * ALPHABET_STRENGTH) % HASH_MOD + (hash_t) str[i]) % HASH_MOD;
 		hash_slide = (hash_slide * ALPHABET_STRENGTH) % HASH_MOD;
 	}
 
@@ -124,14 +127,15 @@ static inline struct hash_st calc_hash(const char *str, size_t needle_len) {
 	return hs;
 }
 
-static inline struct hash_st
-slide_hash(const char *str, size_t i, size_t needle_len, struct hash_st hs) {
+static inline struct hash_st slide_hash(
+	const char *str, size_t i, size_t needle_len, struct hash_st hs) {
+
 	assert(str);
 
-	long long hash_slide = hs.hash_slide;
+	hash_t hash_slide = hs.hash_slide;
 	hash_slide = (hash_slide * str[i - needle_len]) % HASH_MOD;
 
-	long long nhash = hs.hash;
+	hash_t nhash = hs.hash;
 	nhash = positive_mod(nhash - hash_slide, HASH_MOD);
 	nhash = (((nhash * ALPHABET_STRENGTH) % HASH_MOD) + str[i]) % HASH_MOD;
 	hs.hash = nhash;

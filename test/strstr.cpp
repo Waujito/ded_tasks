@@ -76,8 +76,8 @@ test_strstr(strstr_function fn) {
 	if (!timespec_get(&start_time, TIME_UTC)) return -1;
 
 
-	for (int i = 0; i < 10; i++) {
-		switch (random_gen_and_test("abcde", 30, 1'200'000, fn)) {	
+	for (int i = 0; i < 100; i++) {
+		switch (random_gen_and_test("abcde", 8, 120'000, fn)) {	
 			case 0:
 				succ_null++;
 				break;
@@ -118,34 +118,3 @@ TEST(StrStr, StrStr_zfunction)
 {
 	test_strstr(my_strstr_zfunction);
 }
-
-/*
-int main() {
-	char *saveptr = NULL;
-	char uwu[] = "ttabacabaabacabafdabajlkewjrabajlkjabaaaaaaaaabaabajjj";
-	char *stt = my_strsplit_r(uwu, "aba", &saveptr);
-	printf("%s\n", stt);
-	while ((stt = my_strsplit_r(NULL, "aba", &saveptr)) != NULL) {
-		printf("%s\n", stt);
-	}
-
-	char uwu[] = "abacabafdabajlkewjrabajlkjabaaaaaaaaabaaba";
-	char *stt = strtok(uwu, "aba");
-	printf("%s\n", stt);
-	while ((stt = strtok(NULL, "aba")) != NULL) {
-		printf("%s\n", stt);
-	}
-	*/
-	
-	// char haystack[] = "babaacaba";
-	// char needle[] = "aba";
-	//
-	// printf("<%s>\n", my_strstr_hash(haystack, needle));
-
-
-
-/*
-	
-	return 0;
-}
-*/
