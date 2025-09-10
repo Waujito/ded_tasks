@@ -24,8 +24,7 @@ char *my_strstr_trivial(char *haystack, const char *needle) {
 	return NULL;
 }
 
-static void 
-z_function(const char *str, int *zbuf, size_t len) {
+static void z_function(const char *str, int *zbuf, size_t len) { // FIXME imena huinya. Peredelat'
 	zbuf[0] = (int) len;
 
 	int lh = 0, rh = 0;
@@ -55,7 +54,7 @@ char *my_strstr_zfunction(char *haystack, const char *needle) {
 	size_t haystack_len = my_strlen(haystack);
 	size_t needle_len = my_strlen(needle);
 
-	size_t kmp_len = needle_len + 1 + haystack_len;
+	size_t kmp_len = needle_len + haystack_len;
 
 	// One for null-terminator
 	char *kmp_buf = (char *)calloc(kmp_len + 1, sizeof(char));
@@ -71,13 +70,12 @@ char *my_strstr_zfunction(char *haystack, const char *needle) {
 	}
 
 	my_strcat(kmp_buf, needle);
-	my_strcat(kmp_buf, "#");
 	my_strcat(kmp_buf, haystack);
 
 	z_function(kmp_buf, zbuf, kmp_len);
 
 	for (size_t i = 0; i < haystack_len; i++) {
-		if ((size_t) zbuf[needle_len + 1 + i] >= needle_len) {
+		if ((size_t) zbuf[needle_len + i] >= needle_len) {
 			free(kmp_buf);
 			free(zbuf);
 			return haystack + i;
@@ -92,8 +90,7 @@ char *my_strstr_zfunction(char *haystack, const char *needle) {
 
 static const int HASH_MOD = 1'000'000'007;
 
-static inline long long
-positive_mod(long long a, long long b) {
+static inline long long positive_mod(long long a, long long b) {
     long long result = a % b;
     if (result < 0) {
         result += (b < 0) ? -b : b;
@@ -102,22 +99,23 @@ positive_mod(long long a, long long b) {
 }
 
 static const int ALPHABET_STRENGTH = 256;
-
+// TODO typedef for hash type
 struct hash_st {
 	long long hash;
 	long long hash_slide;
 };
 
-static inline struct hash_st
-calc_hash(const char *str, size_t needle_len) {
+static inline struct hash_st calc_hash(const char *str, size_t needle_len) {
 	assert(str);
 
 	long long hash = str[0];
 	long long hash_slide = 1;
+
 	for (size_t i = 1; i < needle_len; i++) {
 		hash = ((hash * ALPHABET_STRENGTH) % HASH_MOD + str[i]) % HASH_MOD;
 		hash_slide = (hash_slide * ALPHABET_STRENGTH) % HASH_MOD;
 	}
+
 	struct hash_st hs = {
 		.hash = hash,
 		.hash_slide = hash_slide,
@@ -160,7 +158,7 @@ char *my_strstr_hash(char *haystack, const char *needle) {
 
 		if (hs.hash == hs_target.hash) {
 			char *target_ptr = haystack + i - needle_len + 1;
-			
+
 			if (strncmp(target_ptr, needle, needle_len)) {
 				printf("Collision\n");
 				continue;
