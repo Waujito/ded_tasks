@@ -164,7 +164,6 @@ char *my_strstr_hash(char *haystack, const char *needle) {
 			char *target_ptr = haystack + i - needle_len + 1;
 
 			if (strncmp(target_ptr, needle, needle_len)) {
-				printf("Collision\n");
 				continue;
 			}
 
@@ -175,3 +174,45 @@ char *my_strstr_hash(char *haystack, const char *needle) {
 	return NULL;
 }
 
+const static size_t BOYER_MOORE_ALPHABET_STRENGTH = 256;
+char *my_strstr_boyer_moore(char *haystack, const char *needle) {
+	assert (haystack);
+	assert (needle);
+
+	int jump_table[BOYER_MOORE_ALPHABET_STRENGTH] = {0};
+
+	const size_t needle_len = strlen(needle);
+	for (size_t i = 0; i < needle_len; i++) {
+		jump_table[(unsigned char) needle[i]] = (int) (needle_len - i);
+	}
+
+	ssize_t jump_off = (ssize_t) needle_len - 1;
+
+	do {
+		int jump_size = jump_table[(unsigned char) *haystack];
+
+		if (jump_size == 0) {
+			jump_off = (ssize_t) needle_len - 1;
+			continue;
+		}
+
+		if (	jump_size > 1 &&
+			jump_size > (int) jump_off) {
+
+			jump_off = jump_size - 2;
+			continue;
+		}
+
+		if (jump_off > 0) {
+			--jump_off;
+			continue;
+		}	
+
+		if (!strncmp(haystack - needle_len + 1, needle, needle_len)) {
+			return haystack - needle_len + 1;
+		}
+
+	} while (*(haystack++) != '\0');
+
+	return NULL;
+}

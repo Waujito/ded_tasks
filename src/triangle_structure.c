@@ -3,8 +3,7 @@
 #include <stdlib.h>
 
 size_t triangle_len(size_t n) {
-	size_t asize = ((1 + n) * n) / 2;
-	return asize;
+	return ((1 + n) * n) / 2;
 }
 size_t triangle_idx(size_t i, size_t j) {
 	if (i < j) {
@@ -38,6 +37,29 @@ int main() {
 
 	for (size_t i = 0; i < n; i++) {
 		for (size_t j = 0; j < n; j++) {
+			size_t idx = triangle_idx(i, j);
+
+			printf("%2d ", triangle_arr[idx]);
+		}
+		printf("\n");
+	}
+
+	printf("\n\n");
+
+	for (size_t i = 0; i < n; i++) {
+		for (size_t j = 0; j <= i; j++) {
+			size_t idx = triangle_idx(i, j);
+
+			printf("%2d ", triangle_arr[idx]);
+		}
+		printf("\n");
+	}
+
+	printf("\n\n");
+
+	for (size_t i = 0; i < n; i++) {
+		printf("%*s", 3 * (int)i, "");
+		for (size_t j = i; j < n; j++) {
 			size_t idx = triangle_idx(i, j);
 
 			printf("%2d ", triangle_arr[idx]);

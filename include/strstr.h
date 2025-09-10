@@ -11,5 +11,7 @@ char *my_strstr_zfunction(char *haystack, const char *needle);
 
 char *my_strstr_hash(char *haystack, const char *needle);
 
+char *my_strstr_boyer_moore(char *haystack, const char *needle);
+
 #endif /* STRSTR_H */
 

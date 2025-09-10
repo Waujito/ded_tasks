@@ -17,9 +17,10 @@ static double millis_diff (struct timespec end_time, struct timespec start_time)
 	return millisec_diff;
 }
 
-static int
-random_gen_and_test(const char alphabet[], size_t needle_len, size_t haystack_len, 
-	       strstr_function my_strstr_fn) {
+static int random_gen_and_test(
+	const char alphabet[], size_t needle_len, size_t haystack_len, 
+	strstr_function my_strstr_fn) {
+
 	char *needle = (char *)calloc(needle_len, 1);
 	if (needle == NULL) {
 		return -1;
@@ -51,8 +52,10 @@ random_gen_and_test(const char alphabet[], size_t needle_len, size_t haystack_le
 	struct timespec end_time = {0};
 	if (!timespec_get(&end_time, TIME_UTC)) return -1;
 
+#ifdef TEST_DEBUG
 	double millisec_diff = millis_diff(end_time, start_time);
-	printf("my_strstr_fn worked in %g ms\n", millisec_diff);
+	printf_debug_log("my_strstr_fn worked in %g ms\n", millisec_diff);
+#endif /* TEST_DEBUG */
 
 
 	free(haystack);
@@ -66,8 +69,7 @@ random_gen_and_test(const char alphabet[], size_t needle_len, size_t haystack_le
 	return stdlib_found != NULL;
 }
 
-static int
-test_strstr(strstr_function fn) {
+static int test_strstr(strstr_function fn) {
 	int failed = 0;
 	int succ_null = 0;
 	int succ_cmp = 0;
@@ -77,7 +79,7 @@ test_strstr(strstr_function fn) {
 
 
 	for (int i = 0; i < 100; i++) {
-		switch (random_gen_and_test("abcde", 8, 120'000, fn)) {	
+		switch (random_gen_and_test("abcde", 10, 1'200'000, fn)) {	
 			case 0:
 				succ_null++;
 				break;
@@ -117,4 +119,9 @@ TEST(StrStr, StrStr_trivial)
 TEST(StrStr, StrStr_zfunction)
 {
 	test_strstr(my_strstr_zfunction);
+}
+
+TEST(StrStr, StrStr_boyer_moore)
+{
+	test_strstr(my_strstr_boyer_moore);
 }
