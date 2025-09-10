@@ -25,27 +25,12 @@ char *my_strstr_trivial(char *haystack, const char *needle) {
 	return NULL;
 }
 
-static void z_function(const char *str, int *zbuf, size_t str_len) {
-	zbuf[0] = (int) str_len;
-
-	int left_border = 0, right_border = 0;
-
-	for (int i = 1; i < (int) str_len; i++) {
-		zbuf[i] = 0;
-		if (i < right_border) {
-			zbuf[i] = zbuf[i - left_border];
-			if (right_border - i < zbuf[i])
-				zbuf[i] = right_border - i;
-		}
-
-		while (	i + zbuf[i] < (int) str_len &&
-			str[zbuf[i]] == str[i + zbuf[i]])
-			zbuf[i]++;
-
-		if (i + zbuf[i] > right_border) {
-			left_border = i;
-			right_border = i + zbuf[i];
-		}
+static inline char get_kmp_char(const char *needle, const char *haystack,
+			    size_t needle_len, size_t i) {
+	if (i < needle_len) {
+		return needle[i];
+	} else {
+		return haystack[i - needle_len];
 	}
 }
 
@@ -58,33 +43,47 @@ char *my_strstr_zfunction(char *haystack, const char *needle) {
 
 	size_t kmp_len = needle_len + haystack_len;
 
-	// One for null-terminator
-	char *kmp_buf = (char *)calloc(kmp_len + 1, sizeof(char));
-	if (!kmp_buf) {
-		perror("strstr_zfunction calloc");
-		return NULL;
-	}
-
-	int *zbuf = (int *)calloc(kmp_len + 1, sizeof(int));
+	unsigned int *zbuf = (unsigned int *)calloc(kmp_len + 1, sizeof(int));
 	if (!zbuf) {
 		perror("strstr_zfunction calloc");
 		return NULL;
 	}
 
-	my_strcat(kmp_buf, needle);
-	my_strcat(kmp_buf, haystack);
+	/* z_function */
+	{
+		zbuf[0] = (unsigned int) kmp_len;
 
-	z_function(kmp_buf, zbuf, kmp_len);
+		unsigned int left_border = 0, right_border = 0;
+
+		for (unsigned int i = 1; i < kmp_len; i++) {
+			zbuf[i] = 0;
+			if (i < right_border) {
+				zbuf[i] = zbuf[i - left_border];
+				if (right_border - i < zbuf[i])
+					zbuf[i] = right_border - i;
+			}
+
+			while (	i + zbuf[i] < kmp_len &&
+				get_kmp_char(needle, haystack, needle_len, zbuf[i]) == 
+				get_kmp_char(needle, haystack, needle_len, i + zbuf[i])) {
+
+				zbuf[i]++;
+			}
+
+			if (i + zbuf[i] > right_border) {
+				left_border = i;
+				right_border = i + zbuf[i];
+			}
+		}
+	}
 
 	for (size_t i = 0; i < haystack_len; i++) {
 		if ((size_t) zbuf[needle_len + i] >= needle_len) {
-			free(kmp_buf);
 			free(zbuf);
 			return haystack + i;
 		}
 	}
 
-	free(kmp_buf);
 	free(zbuf);
 
 	return NULL;
