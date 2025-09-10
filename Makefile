@@ -30,7 +30,7 @@ STATIC_LIB := $(BUILD_DIR)/tasks.a
 TESTLIBSRC := test/test_machine.cpp
 TESTLIBOBJ := $(TESTLIBSRC:%.cpp=$(BUILD_DIR)/%.o)
 
-TESTSRC := test/strstr.cpp
+TESTSRC := test/strstr.cpp test/strfuncs.cpp
 TESTOBJ := $(TESTSRC:%.cpp=$(BUILD_DIR)/%.o)
 TEST_LIB_APP := $(BUILD_DIR)/test_tasks
 
