@@ -16,26 +16,27 @@ char *my_strsplit_r(char *str, const char *delim, char **saveptr) {
 	if (*saveptr == NULL)
 		return NULL;
 
-	char *substr_ptr = NULL;
-	char *old_saveptr = NULL;
+	char *delim_substr_ptr = NULL;
+	char *token_beginning  = NULL;
 	size_t delim_len = my_strlen(delim);
 
 	do {
-		old_saveptr = *saveptr;
+		token_beginning = *saveptr;
 
-		substr_ptr = my_strstr_trivial(*saveptr, delim);
+		delim_substr_ptr = my_strstr_trivial(*saveptr, delim);
 
-		if (substr_ptr == NULL) {
+		if (delim_substr_ptr == NULL) {
 			*saveptr = NULL;
 			break;
 		}
 
-		*substr_ptr = '\0';
-		*saveptr = substr_ptr + delim_len;
-	} while (substr_ptr == old_saveptr);
+		*delim_substr_ptr = '\0';
+		*saveptr = delim_substr_ptr + delim_len;
 
-	if (*old_saveptr == '\0')
+	} while (delim_substr_ptr == token_beginning);
+
+	if (*token_beginning == '\0')
 		return NULL;
 
-	return old_saveptr;
+	return token_beginning;
 }

@@ -193,12 +193,12 @@ char *my_strtok_r(char *str, const char *delim, char **saveptr) {
 	char *substr_ptr = *saveptr;
 	int do_break = 0;
 	while (*substr_ptr != '\0') {
-		for (size_t d = 0; delim[d] != '\0'; d++) {
+		for (size_t d = 0; delim[d] != '\0'; d++) { // FIXME strchr
 			if (*substr_ptr == delim[d]) {
 				*substr_ptr = '\0';
 				do_break = 1;
 
-				if (*saveptr == substr_ptr) {
+				if (*saveptr == substr_ptr) { // FIXME
 					(*saveptr)++;
 					do_break = 0;
 				}
