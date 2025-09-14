@@ -1,19 +1,13 @@
 #define _GNU_SOURCE
 
-#include <err.h>
-#include <linux/prctl.h>
 #include <poll.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/prctl.h>
-#include <sys/ptrace.h>
 #include <sys/wait.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/eventfd.h>
 #include <stdlib.h>
-#include <signal.h>
-
+#include <unistd.h>
 #include <stdio.h>
 
 struct gdb_pipes {
@@ -246,7 +240,7 @@ int gdb_running(pid_t program_pid, int signaling_fd) {
 		}
 
 		if (wait(NULL) == -1) /* Wait for child */
-			err(EXIT_FAILURE, "wait");
+			return -1;
 	}
 
 	return 0;
@@ -310,7 +304,7 @@ int fork_for_gdb(void) {
 		gdb_running(gdb_pid, second_eventfd);
 
 		if (wait(NULL) == -1)	/* Wait for child */
-			err(EXIT_FAILURE, "wait");
+			return -1;
 
 		exit(EXIT_SUCCESS);
 	}
